@@ -22,10 +22,10 @@ export default function DashboardPage() {
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
       {/* Welcome Section */}
       <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900">
+        <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">
           Welcome back, {user.name}!
         </h1>
-        <p className="mt-2 text-gray-600">
+        <p className="mt-2 text-gray-600 dark:text-gray-400">
           Here's what's happening with your account
         </p>
       </div>
@@ -142,14 +142,14 @@ export default function DashboardPage() {
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
-            <div className="flex items-center justify-between py-3 border-b">
+            <div className="flex items-center justify-between py-3 border-b dark:border-gray-700">
               <div>
-                <p className="font-medium text-gray-900">Account created</p>
-                <p className="text-sm text-gray-500">Welcome to Talklify!</p>
+                <p className="font-medium text-gray-900 dark:text-gray-100">Account created</p>
+                <p className="text-sm text-gray-500 dark:text-gray-400">Welcome to Talklify!</p>
               </div>
-              <span className="text-sm text-gray-500">Just now</span>
+              <span className="text-sm text-gray-500 dark:text-gray-400">Just now</span>
             </div>
-            <div className="text-center py-8 text-gray-500">
+            <div className="text-center py-8 text-gray-500 dark:text-gray-400">
               <p>Start exploring sessions to see more activity</p>
             </div>
           </div>
