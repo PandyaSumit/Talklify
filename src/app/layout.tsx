@@ -1,5 +1,8 @@
 import type { Metadata } from 'next'
 import './globals.css'
+import { SessionProvider } from '@/providers/SessionProvider'
+import { QueryProvider } from '@/providers/QueryProvider'
+import { Header } from '@/components/layout/Header'
 
 export const metadata: Metadata = {
   title: 'Talklify - Marketplace for Expert Sessions',
@@ -13,7 +16,14 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body>{children}</body>
+      <body className="min-h-screen bg-gray-50">
+        <SessionProvider>
+          <QueryProvider>
+            <Header />
+            {children}
+          </QueryProvider>
+        </SessionProvider>
+      </body>
     </html>
   )
 }
