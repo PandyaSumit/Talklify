@@ -1,18 +1,16 @@
 import { NextAuthOptions } from 'next-auth'
 import CredentialsProvider from 'next-auth/providers/credentials'
 import GoogleProvider from 'next-auth/providers/google'
-import { PrismaAdapter } from '@next-auth/prisma-adapter'
 import { compare } from 'bcryptjs'
-import prisma from '@/lib/prisma'
+import connectDB from '@/lib/mongodb'
+import User from '@/models/User'
 
 export const authOptions: NextAuthOptions = {
-  adapter: PrismaAdapter(prisma),
   session: {
     strategy: 'jwt',
   },
   pages: {
     signIn: '/auth/signin',
-    signUp: '/auth/signup',
     error: '/auth/error',
   },
   providers: [
@@ -31,11 +29,9 @@ export const authOptions: NextAuthOptions = {
           throw new Error('Invalid credentials')
         }
 
-        const user = await prisma.user.findUnique({
-          where: {
-            email: credentials.email,
-          },
-        })
+        await connectDB()
+
+        const user = await User.findOne({ email: credentials.email })
 
         if (!user || !user.password) {
           throw new Error('Invalid credentials')
@@ -48,7 +44,7 @@ export const authOptions: NextAuthOptions = {
         }
 
         return {
-          id: user.id,
+          id: user._id.toString(),
           email: user.email,
           name: user.name,
           image: user.profileImage,
@@ -57,6 +53,32 @@ export const authOptions: NextAuthOptions = {
     }),
   ],
   callbacks: {
+    async signIn({ user, account, profile }) {
+      if (account?.provider === 'google') {
+        await connectDB()
+
+        // Check if user exists
+        let existingUser = await User.findOne({ email: user.email })
+
+        if (!existingUser) {
+          // Create new user from Google OAuth
+          existingUser = await User.create({
+            email: user.email,
+            name: user.name,
+            profileImage: user.image,
+            emailVerified: new Date(),
+            userType: 'ATTENDEE',
+            subscriptionTier: 'FREE',
+            timezone: Intl.DateTimeFormat().resolvedOptions().timeZone || 'UTC',
+            isVerified: true,
+          })
+        }
+
+        user.id = existingUser._id.toString()
+      }
+
+      return true
+    },
     async jwt({ token, user, trigger, session }) {
       if (user) {
         token.id = user.id
@@ -71,26 +93,17 @@ export const authOptions: NextAuthOptions = {
     },
     async session({ session, token }) {
       if (token && session.user) {
-        session.user.id = token.id as string
+        await connectDB()
 
         // Fetch additional user data
-        const dbUser = await prisma.user.findUnique({
-          where: { id: token.id as string },
-          select: {
-            id: true,
-            email: true,
-            name: true,
-            userType: true,
-            subscriptionTier: true,
-            profileImage: true,
-            isVerified: true,
-          },
-        })
+        const dbUser = await User.findById(token.id).select(
+          '_id email name userType subscriptionTier profileImage isVerified'
+        )
 
         if (dbUser) {
           session.user = {
             ...session.user,
-            id: dbUser.id,
+            id: dbUser._id.toString(),
             userType: dbUser.userType,
             subscriptionTier: dbUser.subscriptionTier,
             isVerified: dbUser.isVerified,

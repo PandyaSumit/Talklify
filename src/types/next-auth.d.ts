@@ -1,4 +1,4 @@
-import { UserType, SubscriptionTier } from '@prisma/client'
+import { UserType, SubscriptionTier } from '@/models/User'
 import 'next-auth'
 
 declare module 'next-auth' {
@@ -18,16 +18,16 @@ declare module 'next-auth' {
     id: string
     email: string
     name: string
-    userType: UserType
-    subscriptionTier: SubscriptionTier
-    isVerified: boolean
+    userType?: UserType
+    subscriptionTier?: SubscriptionTier
+    isVerified?: boolean
   }
 }
 
 declare module 'next-auth/jwt' {
   interface JWT {
     id: string
-    userType: UserType
-    subscriptionTier: SubscriptionTier
+    userType?: UserType
+    subscriptionTier?: SubscriptionTier
   }
 }
