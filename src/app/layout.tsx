@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import './globals.css'
 import { SessionProvider } from '@/providers/SessionProvider'
 import { QueryProvider } from '@/providers/QueryProvider'
+import { ThemeProvider } from '@/providers/ThemeProvider'
 import { Header } from '@/components/layout/Header'
 
 export const metadata: Metadata = {
@@ -15,12 +16,19 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html lang="en">
-      <body className="min-h-screen bg-gray-50">
+    <html lang="en" suppressHydrationWarning>
+      <head>
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+        <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+      </head>
+      <body className="min-h-screen">
         <SessionProvider>
           <QueryProvider>
-            <Header />
-            {children}
+            <ThemeProvider>
+              <Header />
+              {children}
+            </ThemeProvider>
           </QueryProvider>
         </SessionProvider>
       </body>
