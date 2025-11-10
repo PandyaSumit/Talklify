@@ -1,5 +1,7 @@
 import { getServerSession } from 'next-auth'
 import { authOptions } from './auth-options'
+import connectDB from '@/lib/mongodb'
+import User from '@/models/User'
 
 export async function getCurrentUser() {
   const session = await getServerSession(authOptions)
@@ -24,4 +26,9 @@ export async function requireHost() {
   }
 
   return user
+}
+
+export async function getUserById(userId: string) {
+  await connectDB()
+  return await User.findById(userId).select('-password')
 }
