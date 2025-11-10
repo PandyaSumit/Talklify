@@ -29,5 +29,6 @@ declare module 'next-auth/jwt' {
     id: string
     userType?: UserType
     subscriptionTier?: SubscriptionTier
+    isVerified?: boolean
   }
 }

@@ -84,6 +84,17 @@ export const authOptions: NextAuthOptions = {
         token.id = user.id
       }
 
+      // Fetch user data and add to token
+      if (token.id) {
+        await connectDB()
+        const dbUser = await User.findById(token.id).select('userType subscriptionTier isVerified')
+        if (dbUser) {
+          token.userType = dbUser.userType
+          token.subscriptionTier = dbUser.subscriptionTier
+          token.isVerified = dbUser.isVerified
+        }
+      }
+
       // Update token when session is updated
       if (trigger === 'update' && session) {
         token = { ...token, ...session }
@@ -93,21 +104,12 @@ export const authOptions: NextAuthOptions = {
     },
     async session({ session, token }) {
       if (token && session.user) {
-        await connectDB()
-
-        // Fetch additional user data
-        const dbUser = await User.findById(token.id).select(
-          '_id email name userType subscriptionTier profileImage isVerified'
-        )
-
-        if (dbUser) {
-          session.user = {
-            ...session.user,
-            id: dbUser._id.toString(),
-            userType: dbUser.userType,
-            subscriptionTier: dbUser.subscriptionTier,
-            isVerified: dbUser.isVerified,
-          }
+        session.user = {
+          ...session.user,
+          id: token.id as string,
+          userType: token.userType as string,
+          subscriptionTier: token.subscriptionTier as string,
+          isVerified: token.isVerified as boolean,
         }
       }
 
