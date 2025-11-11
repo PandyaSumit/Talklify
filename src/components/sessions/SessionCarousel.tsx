@@ -3,23 +3,13 @@
 import { useState, useRef, useEffect } from 'react'
 import { SessionCard, SessionCardProps } from './SessionCard'
 import { ChevronLeft, ChevronRight } from 'lucide-react'
-import { Button } from '@/components/ui/Button'
 
 interface SessionCarouselProps {
   sessions: SessionCardProps[]
-  title: string
-  subtitle?: string
-  onBookmark?: (sessionId: string) => void
-  onShare?: (sessionId: string) => void
+  variant?: 'default' | 'clean'
 }
 
-export function SessionCarousel({
-  sessions,
-  title,
-  subtitle,
-  onBookmark,
-  onShare,
-}: SessionCarouselProps) {
+export function SessionCarousel({ sessions, variant = 'default' }: SessionCarouselProps) {
   const scrollRef = useRef<HTMLDivElement>(null)
   const [canScrollLeft, setCanScrollLeft] = useState(false)
   const [canScrollRight, setCanScrollRight] = useState(true)
@@ -40,7 +30,7 @@ export function SessionCarousel({
 
   const scroll = (direction: 'left' | 'right') => {
     if (scrollRef.current) {
-      const scrollAmount = 400
+      const scrollAmount = 350
       const newScrollLeft =
         direction === 'left'
           ? scrollRef.current.scrollLeft - scrollAmount
@@ -61,39 +51,24 @@ export function SessionCarousel({
 
   return (
     <div className="relative">
-      {/* Header */}
-      <div className="flex items-end justify-between mb-6">
-        <div>
-          <h2 className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-gray-100">
-            {title}
-          </h2>
-          {subtitle && (
-            <p className="text-gray-600 dark:text-gray-400 mt-1">{subtitle}</p>
-          )}
-        </div>
+      {/* Navigation Buttons - Desktop only */}
+      {canScrollLeft && (
+        <button
+          onClick={() => scroll('left')}
+          className="hidden md:flex absolute left-0 top-1/2 -translate-y-1/2 -translate-x-16 z-10 w-10 h-10 items-center justify-center rounded-full bg-white border border-gray-200 text-gray-700 hover:bg-gray-50 hover:shadow-md transition-all duration-300"
+        >
+          <ChevronLeft className="w-5 h-5" />
+        </button>
+      )}
 
-        {/* Navigation Buttons */}
-        <div className="hidden md:flex gap-2">
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => scroll('left')}
-            disabled={!canScrollLeft}
-            className="p-2"
-          >
-            <ChevronLeft className="w-5 h-5" />
-          </Button>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => scroll('right')}
-            disabled={!canScrollRight}
-            className="p-2"
-          >
-            <ChevronRight className="w-5 h-5" />
-          </Button>
-        </div>
-      </div>
+      {canScrollRight && (
+        <button
+          onClick={() => scroll('right')}
+          className="hidden md:flex absolute right-0 top-1/2 -translate-y-1/2 translate-x-16 z-10 w-10 h-10 items-center justify-center rounded-full bg-white border border-gray-200 text-gray-700 hover:bg-gray-50 hover:shadow-md transition-all duration-300"
+        >
+          <ChevronRight className="w-5 h-5" />
+        </button>
+      )}
 
       {/* Carousel */}
       <div
@@ -107,30 +82,8 @@ export function SessionCarousel({
       >
         {sessions.map((session) => (
           <div key={session._id} className="flex-shrink-0 w-80">
-            <SessionCard
-              {...session}
-              onBookmark={onBookmark}
-              onShare={onShare}
-            />
+            <SessionCard {...session} />
           </div>
-        ))}
-      </div>
-
-      {/* Mobile Navigation Indicators */}
-      <div className="flex md:hidden justify-center gap-2 mt-4">
-        {Array.from({ length: Math.ceil(sessions.length / 2) }).map((_, index) => (
-          <button
-            key={index}
-            className="w-2 h-2 rounded-full bg-gray-300 dark:bg-gray-600 transition-colors"
-            onClick={() => {
-              if (scrollRef.current) {
-                scrollRef.current.scrollTo({
-                  left: index * 700,
-                  behavior: 'smooth',
-                })
-              }
-            }}
-          />
         ))}
       </div>
 
