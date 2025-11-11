@@ -1,12 +1,16 @@
 import { NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth'
 import connectDB from '@/lib/mongodb'
-import Booking from '@/models/Booking'
 import Session from '@/models/Session'
 import User from '@/models/User'
+import Booking from '@/models/Booking'
 import { authOptions } from '@/lib/auth/auth-options'
+import { createPaymentIntent } from '@/lib/stripe'
 
-export async function POST(request: Request) {
+export async function POST(
+  request: Request,
+  { params }: { params: Promise<{ sessionId: string }> }
+) {
   try {
     const session = await getServerSession(authOptions)
 
@@ -21,24 +25,14 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'User not found' }, { status: 404 })
     }
 
-    const body = await request.json()
-    const { sessionId } = body
-
-    if (!sessionId) {
-      return NextResponse.json(
-        { error: 'Session ID is required' },
-        { status: 400 }
-      )
-    }
-
-    // Find the session
-    const sessionData = await Session.findById(sessionId)
+    const resolvedParams = await params
+    const sessionData = await Session.findById(resolvedParams.sessionId)
     if (!sessionData) {
       return NextResponse.json({ error: 'Session not found' }, { status: 404 })
     }
 
-    // Validate session is available
-    if (sessionData.status !== 'PUBLISHED') {
+    // Validate session is available for booking
+    if (sessionData.status !== 'published') {
       return NextResponse.json(
         { error: 'Session is not available for booking' },
         { status: 400 }
@@ -59,19 +53,19 @@ export async function POST(request: Request) {
       )
     }
 
-    // This endpoint is only for free sessions
-    if (sessionData.price !== 0) {
+    // Check if session is free
+    if (sessionData.price === 0) {
       return NextResponse.json(
-        { error: 'This is a paid session, please use the checkout flow' },
+        { error: 'This is a free session, use the free registration endpoint' },
         { status: 400 }
       )
     }
 
-    // Check if user already booked this session
+    // Check for existing booking
     const existingBooking = await Booking.findOne({
-      sessionId,
       userId: user._id,
-      status: { $in: ['CONFIRMED', 'PENDING'] },
+      sessionId: resolvedParams.sessionId,
+      status: { $in: ['PENDING', 'CONFIRMED'] },
     })
 
     if (existingBooking) {
@@ -81,41 +75,27 @@ export async function POST(request: Request) {
       )
     }
 
-    // Create booking
-    const booking = await Booking.create({
-      sessionId,
-      userId: user._id,
-      paymentAmount: 0,
-      paymentCurrency: sessionData.currency,
-      status: 'CONFIRMED',
-      paymentStatus: 'COMPLETED',
+    // Create Stripe Payment Intent
+    const paymentIntent = await createPaymentIntent({
+      amount: sessionData.price,
+      currency: sessionData.currency,
+      sessionId: resolvedParams.sessionId,
+      userId: user._id.toString(),
+      sessionTitle: sessionData.title,
+      attendeeEmail: user.email,
     })
 
-    // Update session attendee count atomically
-    await Session.findByIdAndUpdate(
-      sessionId,
-      { $inc: { currentAttendees: 1 } },
-      { new: true }
-    )
-
-    // TODO: Send confirmation email
-    // await sendBookingConfirmationEmail(user.email, booking, sessionData)
-
-    return NextResponse.json(
-      {
-        success: true,
-        message: 'Session booked successfully',
-        booking: {
-          _id: booking._id.toString(),
-          status: booking.status,
-        },
-      },
-      { status: 201 }
-    )
+    return NextResponse.json({
+      success: true,
+      clientSecret: paymentIntent.client_secret,
+      paymentIntentId: paymentIntent.id,
+      amount: sessionData.price,
+      currency: sessionData.currency,
+    })
   } catch (error: any) {
-    console.error('Error creating booking:', error)
+    console.error('Error creating payment intent:', error)
     return NextResponse.json(
-      { error: error.message || 'Failed to create booking' },
+      { error: error.message || 'Failed to create payment intent' },
       { status: 500 }
     )
   }

@@ -22,13 +22,13 @@ export async function GET(request: Request) {
     }
 
     // Fetch all bookings for this user with session details
-    const bookings = await Booking.find({ attendeeId: user._id })
+    const bookings = await Booking.find({ userId: user._id })
       .populate({
         path: 'sessionId',
-        select: 'title slug description sessionDate duration meetingPlatform meetingLink category difficultyLevel status hostId',
+        select: 'title slug description sessionDate duration meetingPlatform category difficultyLevel status hostId price currency',
         populate: {
           path: 'hostId',
-          select: 'name email',
+          select: 'name email profileImage',
         },
       })
       .sort({ createdAt: -1 })
@@ -38,6 +38,16 @@ export async function GET(request: Request) {
       .filter((b) => b.sessionId) // Filter out bookings where session was deleted
       .map((booking) => {
         const sessionData = booking.sessionId as any
+        const now = new Date()
+        const sessionDate = new Date(sessionData.sessionDate)
+
+        // Categorize booking status for frontend filtering
+        let category: 'upcoming' | 'past' | 'cancelled' = 'upcoming'
+        if (booking.status === 'CANCELLED') {
+          category = 'cancelled'
+        } else if (sessionDate < now) {
+          category = 'past'
+        }
 
         return {
           _id: booking._id.toString(),
@@ -46,6 +56,11 @@ export async function GET(request: Request) {
           paymentAmount: booking.paymentAmount,
           paymentCurrency: booking.paymentCurrency,
           bookingDate: booking.createdAt.toISOString(),
+          cancelledAt: booking.cancelledAt?.toISOString(),
+          refundAmount: booking.refundAmount,
+          attended: booking.attended,
+          reviewLeft: booking.reviewLeft,
+          category, // Add category for frontend filtering
           session: {
             _id: sessionData._id.toString(),
             title: sessionData.title,
@@ -54,13 +69,15 @@ export async function GET(request: Request) {
             sessionDate: sessionData.sessionDate.toISOString(),
             duration: sessionData.duration,
             meetingPlatform: sessionData.meetingPlatform,
-            meetingLink: sessionData.meetingLink,
             category: sessionData.category,
             difficultyLevel: sessionData.difficultyLevel,
             status: sessionData.status,
+            price: sessionData.price,
+            currency: sessionData.currency,
             host: {
               name: sessionData.hostId?.name || 'Unknown',
               email: sessionData.hostId?.email || '',
+              profileImage: sessionData.hostId?.profileImage,
             },
           },
         }
