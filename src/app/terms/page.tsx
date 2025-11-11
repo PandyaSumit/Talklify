@@ -1,9 +1,29 @@
 "use client";
 
+import { useState } from "react";
 import Link from "next/link";
-import { FileText, Calendar, AlertCircle } from "lucide-react";
+import { FileText, Calendar, AlertCircle, ChevronDown, Menu } from "lucide-react";
 
 export default function TermsOfServicePage() {
+  const [tocOpen, setTocOpen] = useState(false);
+
+  const sections = [
+    "Agreement to Terms",
+    "User Accounts",
+    "Session Hosting",
+    "Session Attendance",
+    "Payments and Fees",
+    "Intellectual Property",
+    "User Content",
+    "Prohibited Activities",
+    "Termination",
+    "Disclaimers",
+    "Limitation of Liability",
+    "Governing Law",
+    "Changes to Terms",
+    "Contact Information",
+  ];
+
   return (
     <div className="min-h-screen bg-white dark:bg-slate-900">
       {/* Hero Section */}
@@ -35,33 +55,18 @@ export default function TermsOfServicePage() {
       <section className="py-12 sm:py-16 lg:py-20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid lg:grid-cols-4 gap-8 lg:gap-12">
-            {/* Table of Contents - Sticky */}
-            <aside className="lg:col-span-1">
+            {/* Table of Contents - Desktop Sticky Sidebar */}
+            <aside className="lg:col-span-1 hidden lg:block">
               <div className="lg:sticky lg:top-24">
                 <h2 className="text-sm font-semibold text-gray-900 dark:text-white uppercase tracking-wider mb-4">
                   Table of Contents
                 </h2>
                 <nav className="space-y-2">
-                  {[
-                    "Agreement to Terms",
-                    "User Accounts",
-                    "Session Hosting",
-                    "Session Attendance",
-                    "Payments and Fees",
-                    "Intellectual Property",
-                    "User Content",
-                    "Prohibited Activities",
-                    "Termination",
-                    "Disclaimers",
-                    "Limitation of Liability",
-                    "Governing Law",
-                    "Changes to Terms",
-                    "Contact Information",
-                  ].map((item, index) => (
+                  {sections.map((item, index) => (
                     <a
                       key={index}
                       href={`#section-${index + 1}`}
-                      className="block text-sm text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
+                      className="block text-sm text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors py-1"
                     >
                       {index + 1}. {item}
                     </a>
@@ -72,6 +77,39 @@ export default function TermsOfServicePage() {
 
             {/* Main Content */}
             <div className="lg:col-span-3">
+              {/* Mobile Table of Contents - Collapsible */}
+              <div className="lg:hidden mb-8">
+                <button
+                  onClick={() => setTocOpen(!tocOpen)}
+                  className="w-full flex items-center justify-between p-4 bg-gray-50 dark:bg-slate-800/50 rounded-xl border border-gray-200 dark:border-slate-700 hover:bg-gray-100 dark:hover:bg-slate-800 transition-colors"
+                >
+                  <div className="flex items-center gap-3">
+                    <Menu className="w-5 h-5 text-gray-600 dark:text-gray-400" />
+                    <span className="font-semibold text-gray-900 dark:text-white">Table of Contents</span>
+                  </div>
+                  <ChevronDown
+                    className={`w-5 h-5 text-gray-600 dark:text-gray-400 transition-transform duration-300 ${
+                      tocOpen ? "rotate-180" : ""
+                    }`}
+                  />
+                </button>
+
+                {tocOpen && (
+                  <nav className="mt-4 space-y-1 bg-gray-50 dark:bg-slate-800/50 rounded-xl border border-gray-200 dark:border-slate-700 p-4 animate-slide-down">
+                    {sections.map((item, index) => (
+                      <a
+                        key={index}
+                        href={`#section-${index + 1}`}
+                        onClick={() => setTocOpen(false)}
+                        className="block text-sm text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors py-2 px-3 rounded-lg hover:bg-white dark:hover:bg-slate-700"
+                      >
+                        {index + 1}. {item}
+                      </a>
+                    ))}
+                  </nav>
+                )}
+              </div>
+
               <div className="prose prose-lg dark:prose-invert max-w-none">
                 {/* Introduction */}
                 <div className="bg-blue-50 dark:bg-blue-950/20 border border-blue-200 dark:border-blue-800 rounded-xl p-6 mb-8">

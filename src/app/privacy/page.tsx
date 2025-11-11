@@ -1,9 +1,26 @@
 "use client";
 
+import { useState } from "react";
 import Link from "next/link";
-import { Shield, Calendar, AlertCircle, Lock } from "lucide-react";
+import { Shield, Calendar, AlertCircle, Lock, Menu, ChevronDown } from "lucide-react";
 
 export default function PrivacyPolicyPage() {
+  const [tocOpen, setTocOpen] = useState(false);
+
+  const sections = [
+    "Information We Collect",
+    "How We Use Your Information",
+    "How We Share Your Information",
+    "Data Security",
+    "Data Retention",
+    "Your Privacy Rights",
+    "Cookies and Tracking",
+    "Third-Party Services",
+    "Children's Privacy",
+    "International Data Transfers",
+    "Changes to This Policy",
+    "Contact Us",
+  ];
   return (
     <div className="min-h-screen bg-white dark:bg-slate-900">
       {/* Hero Section */}
@@ -39,28 +56,53 @@ export default function PrivacyPolicyPage() {
       {/* Content Section */}
       <section className="py-12 sm:py-16 lg:py-20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          {/* Mobile Table of Contents - Collapsible */}
+          <div className="lg:hidden mb-8">
+            <button
+              onClick={() => setTocOpen(!tocOpen)}
+              className="w-full flex items-center justify-between p-4 bg-gray-50 dark:bg-slate-800/50 rounded-xl border border-gray-200 dark:border-slate-700 hover:border-blue-300 dark:hover:border-blue-700 transition-colors"
+              aria-expanded={tocOpen}
+              aria-controls="mobile-toc"
+            >
+              <div className="flex items-center gap-3">
+                <Menu className="w-5 h-5 text-gray-700 dark:text-gray-300" />
+                <span className="font-semibold text-gray-900 dark:text-white">Table of Contents</span>
+              </div>
+              <ChevronDown
+                className={`w-5 h-5 text-gray-600 dark:text-gray-400 transition-transform duration-300 ${
+                  tocOpen ? "rotate-180" : ""
+                }`}
+              />
+            </button>
+
+            {tocOpen && (
+              <nav
+                id="mobile-toc"
+                className="mt-4 space-y-1 bg-gray-50 dark:bg-slate-800/50 rounded-xl border border-gray-200 dark:border-slate-700 p-4 animate-slide-down"
+              >
+                {sections.map((item, index) => (
+                  <a
+                    key={index}
+                    href={`#section-${index + 1}`}
+                    onClick={() => setTocOpen(false)}
+                    className="block px-3 py-2 text-sm text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-white dark:hover:bg-slate-700/50 rounded-lg transition-colors"
+                  >
+                    {index + 1}. {item}
+                  </a>
+                ))}
+              </nav>
+            )}
+          </div>
+
           <div className="grid lg:grid-cols-4 gap-8 lg:gap-12">
-            {/* Table of Contents - Sticky */}
-            <aside className="lg:col-span-1">
+            {/* Desktop Table of Contents - Sticky */}
+            <aside className="lg:col-span-1 hidden lg:block">
               <div className="lg:sticky lg:top-24">
                 <h2 className="text-sm font-semibold text-gray-900 dark:text-white uppercase tracking-wider mb-4">
                   Table of Contents
                 </h2>
                 <nav className="space-y-2">
-                  {[
-                    "Information We Collect",
-                    "How We Use Your Information",
-                    "How We Share Your Information",
-                    "Data Security",
-                    "Data Retention",
-                    "Your Privacy Rights",
-                    "Cookies and Tracking",
-                    "Third-Party Services",
-                    "Children's Privacy",
-                    "International Data Transfers",
-                    "Changes to This Policy",
-                    "Contact Us",
-                  ].map((item, index) => (
+                  {sections.map((item, index) => (
                     <a
                       key={index}
                       href={`#section-${index + 1}`}
