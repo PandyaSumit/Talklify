@@ -38,7 +38,7 @@ export async function POST(request: Request) {
     }
 
     // Validate session is available
-    if (sessionData.status !== 'PUBLISHED') {
+    if (sessionData.status !== 'published') {
       return NextResponse.json(
         { error: 'Session is not available for booking' },
         { status: 400 }
