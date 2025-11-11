@@ -107,7 +107,7 @@ export default function DashboardPage() {
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <Link href="/dashboard/bookings">
+            <Link href="/bookings">
               <Button variant="outline" className="w-full">
                 View Bookings
               </Button>
