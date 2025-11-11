@@ -1,17 +1,17 @@
-'use client'
+"use client";
 
-import Link from 'next/link'
-import { useSession, signOut } from 'next-auth/react'
-import { useTheme } from '@/providers/ThemeProvider'
-import { Button } from '@/components/ui/Button'
-import { Moon, Sun, Menu, X } from 'lucide-react'
-import { useState } from 'react'
+import Link from "next/link";
+import { useSession, signOut } from "next-auth/react";
+import { useTheme } from "@/providers/ThemeProvider";
+import { Button } from "@/components/ui/Button";
+import { Moon, Sun, Menu, X } from "lucide-react";
+import { useState } from "react";
 
 export function Header() {
-  const { data: session, status } = useSession()
-  const { theme, toggleTheme } = useTheme()
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
-  const isLoading = status === 'loading'
+  const { data: session, status } = useSession();
+  const { theme, toggleTheme } = useTheme();
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const isLoading = status === "loading";
 
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-white/80 dark:bg-slate-900/80 backdrop-blur-lg">
@@ -20,9 +20,6 @@ export function Header() {
           {/* Logo */}
           <div className="flex items-center">
             <Link href="/" className="flex items-center space-x-2">
-              <div className="h-8 w-8 rounded-lg bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center">
-                <span className="text-white font-bold text-sm">T</span>
-              </div>
               <span className="text-xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 dark:from-blue-400 dark:to-indigo-400 bg-clip-text text-transparent">
                 Talklify
               </span>
@@ -37,7 +34,7 @@ export function Header() {
             >
               Browse Sessions
             </Link>
-            {session?.user.userType !== 'ATTENDEE' && (
+            {session?.user.userType !== "ATTENDEE" && (
               <Link
                 href="/host/sessions/new"
                 className="text-sm font-medium text-slate-700 hover:text-blue-600 dark:text-slate-300 dark:hover:text-blue-400 transition-colors"
@@ -61,7 +58,7 @@ export function Header() {
               className="p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
               aria-label="Toggle theme"
             >
-              {theme === 'light' ? (
+              {theme === "light" ? (
                 <Moon className="h-5 w-5 text-slate-700 dark:text-slate-300" />
               ) : (
                 <Sun className="h-5 w-5 text-slate-700 dark:text-slate-300" />
@@ -74,12 +71,14 @@ export function Header() {
             ) : session ? (
               <>
                 <Link href="/dashboard" className="hidden md:block">
-                  <Button variant="ghost" size="sm">Dashboard</Button>
+                  <Button variant="ghost" size="sm">
+                    Dashboard
+                  </Button>
                 </Link>
                 <Button
                   variant="outline"
                   size="sm"
-                  onClick={() => signOut({ callbackUrl: '/' })}
+                  onClick={() => signOut({ callbackUrl: "/" })}
                 >
                   Sign out
                 </Button>
@@ -87,7 +86,9 @@ export function Header() {
             ) : (
               <>
                 <Link href="/signin" className="hidden md:block">
-                  <Button variant="ghost" size="sm">Sign in</Button>
+                  <Button variant="ghost" size="sm">
+                    Sign in
+                  </Button>
                 </Link>
                 <Link href="/signup">
                   <Button size="sm">Get started</Button>
@@ -119,7 +120,7 @@ export function Header() {
             >
               Browse Sessions
             </Link>
-            {session?.user.userType !== 'ATTENDEE' && (
+            {session?.user.userType !== "ATTENDEE" && (
               <Link
                 href="/host/sessions/new"
                 className="block px-3 py-2 rounded-md text-base font-medium text-slate-700 hover:text-blue-600 hover:bg-slate-100 dark:text-slate-300 dark:hover:text-blue-400 dark:hover:bg-slate-800"
@@ -148,5 +149,5 @@ export function Header() {
         )}
       </nav>
     </header>
-  )
+  );
 }
