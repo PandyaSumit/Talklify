@@ -9,7 +9,7 @@ import { createPaymentIntent } from '@/lib/stripe'
 
 export async function POST(
   request: Request,
-  { params }: { params: Promise<{ sessionId: string }> }
+  { params }: { params: Promise<{ slug: string }> }
 ) {
   try {
     const session = await getServerSession(authOptions)
@@ -26,7 +26,9 @@ export async function POST(
     }
 
     const resolvedParams = await params
-    const sessionData = await Session.findById(resolvedParams.sessionId)
+
+    // Find session by slug
+    const sessionData = await Session.findOne({ slug: resolvedParams.slug })
     if (!sessionData) {
       return NextResponse.json({ error: 'Session not found' }, { status: 404 })
     }
@@ -64,7 +66,7 @@ export async function POST(
     // Check for existing booking
     const existingBooking = await Booking.findOne({
       userId: user._id,
-      sessionId: resolvedParams.sessionId,
+      sessionId: sessionData._id,
       status: { $in: ['PENDING', 'CONFIRMED'] },
     })
 
@@ -79,7 +81,7 @@ export async function POST(
     const paymentIntent = await createPaymentIntent({
       amount: sessionData.price,
       currency: sessionData.currency,
-      sessionId: resolvedParams.sessionId,
+      sessionId: sessionData._id.toString(),
       userId: user._id.toString(),
       sessionTitle: sessionData.title,
       attendeeEmail: user.email,

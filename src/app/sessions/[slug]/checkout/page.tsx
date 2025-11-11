@@ -191,9 +191,9 @@ export default function CheckoutPage() {
 
       setSessionData(session);
 
-      // Create payment intent
+      // Create payment intent using slug
       const checkoutResponse = await fetch(
-        `/api/sessions/${session._id}/checkout`,
+        `/api/sessions/${params.slug}/checkout`,
         {
           method: "POST",
           headers: {
