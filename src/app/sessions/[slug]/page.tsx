@@ -28,7 +28,9 @@ interface SessionDetails {
   description: string
   sessionDate: string
   duration: number
+  timezone?: string
   meetingPlatform: string
+  meetingLink?: string
   category: string
   tags: string[]
   difficultyLevel: string
@@ -139,11 +141,11 @@ export default function SessionDetailPage() {
 
   const getDifficultyColor = (level: string) => {
     switch (level) {
-      case 'BEGINNER':
+      case 'Beginner':
         return 'success'
-      case 'INTERMEDIATE':
+      case 'Intermediate':
         return 'warning'
-      case 'ADVANCED':
+      case 'Advanced':
         return 'error'
       default:
         return 'default'
@@ -152,7 +154,7 @@ export default function SessionDetailPage() {
 
   const isSessionFull = sessionDetails && sessionDetails.currentAttendees >= sessionDetails.maxAttendees
   const isSessionPast = sessionDetails && new Date(sessionDetails.sessionDate) < new Date()
-  const canBook = sessionDetails && !sessionDetails.isBooked && !isSessionFull && !isSessionPast && sessionDetails.status === 'PUBLISHED'
+  const canBook = sessionDetails && !sessionDetails.isBooked && !isSessionFull && !isSessionPast && sessionDetails.status === 'published'
 
   if (isLoading) {
     return (
@@ -279,6 +281,11 @@ export default function SessionDetailPage() {
                       <p className="font-medium text-gray-900 dark:text-gray-100">
                         {formatTime(sessionDetails.sessionDate)} ({sessionDetails.duration} min)
                       </p>
+                      {sessionDetails.timezone && (
+                        <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                          {sessionDetails.timezone}
+                        </p>
+                      )}
                     </div>
                   </div>
 
@@ -317,6 +324,24 @@ export default function SessionDetailPage() {
                         </Badge>
                       ))}
                     </div>
+                  </div>
+                )}
+
+                {/* Meeting Link - Only shown to host or booked attendees */}
+                {sessionDetails.meetingLink && (
+                  <div className="pt-4 border-t dark:border-gray-700">
+                    <div className="flex items-center mb-2">
+                      <Video className="w-4 h-4 mr-2 text-green-600 dark:text-green-400" />
+                      <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Meeting Link</span>
+                    </div>
+                    <a
+                      href={sessionDetails.meetingLink}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-blue-600 dark:text-blue-400 hover:underline break-all"
+                    >
+                      {sessionDetails.meetingLink}
+                    </a>
                   </div>
                 )}
               </CardContent>
@@ -380,7 +405,7 @@ export default function SessionDetailPage() {
                   <Button disabled className="w-full" size="lg">
                     Session Ended
                   </Button>
-                ) : sessionDetails.status !== 'PUBLISHED' ? (
+                ) : sessionDetails.status !== 'published' ? (
                   <Button disabled className="w-full" size="lg">
                     Not Available
                   </Button>
