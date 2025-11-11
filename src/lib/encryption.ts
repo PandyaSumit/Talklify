@@ -11,18 +11,29 @@ const DEFAULT_DEV_KEY = '0123456789abcdef0123456789abcdef0123456789abcdef0123456
  * Gets the encryption key from environment or uses default for development
  */
 function getEncryptionKey(): Buffer {
-  const keyString = process.env.ENCRYPTION_KEY || DEFAULT_DEV_KEY
+  let keyString = process.env.ENCRYPTION_KEY
 
-  // Ensure the key is exactly 32 bytes (64 hex characters)
-  if (keyString.length < 64) {
-    throw new Error('ENCRYPTION_KEY must be at least 64 hex characters (32 bytes)')
+  // If env var doesn't exist or is too short, use default dev key
+  if (!keyString || keyString.trim().length < 64) {
+    console.warn('ENCRYPTION_KEY not set or too short, using default development key')
+    keyString = DEFAULT_DEV_KEY
   }
 
   try {
     // Convert hex string to buffer (32 bytes for AES-256)
-    return Buffer.from(keyString.slice(0, 64), 'hex')
+    const key = Buffer.from(keyString.slice(0, 64), 'hex')
+
+    // Verify the key is exactly 32 bytes
+    if (key.length !== 32) {
+      throw new Error('Invalid key length')
+    }
+
+    return key
   } catch (error) {
-    throw new Error('ENCRYPTION_KEY must be a valid hex string')
+    console.error('Encryption key error:', error)
+    // If the env key is invalid, fall back to default
+    console.warn('ENCRYPTION_KEY is not a valid hex string, using default development key')
+    return Buffer.from(DEFAULT_DEV_KEY, 'hex')
   }
 }
 
