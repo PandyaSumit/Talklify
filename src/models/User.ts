@@ -89,8 +89,7 @@ const UserSchema = new Schema<IUser>(
   }
 )
 
-// Create indexes
-UserSchema.index({ email: 1 })
+// Create indexes (email already indexed via "unique: true" above)
 UserSchema.index({ userType: 1 })
 UserSchema.index({ subscriptionTier: 1 })
 

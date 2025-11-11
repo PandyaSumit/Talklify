@@ -206,13 +206,7 @@ const SessionSchema = new Schema<ISession>(
   }
 )
 
-// Create indexes
-SessionSchema.index({ hostId: 1 })
-SessionSchema.index({ sessionDate: 1 })
-SessionSchema.index({ category: 1 })
-SessionSchema.index({ status: 1 })
-SessionSchema.index({ slug: 1 })
-SessionSchema.index({ tags: 1 })
+// Create indexes (individual field indexes are already defined with "index: true" above)
 SessionSchema.index({ sessionDate: 1, status: 1 }) // Compound index for dashboard queries
 SessionSchema.index({ title: 'text', description: 'text' }) // Text search
 

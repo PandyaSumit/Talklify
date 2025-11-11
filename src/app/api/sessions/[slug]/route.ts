@@ -9,10 +9,13 @@ import { decryptMeetingLink } from '@/lib/encryption'
 
 export async function GET(
   request: Request,
-  { params }: { params: { slug: string } }
+  { params }: { params: Promise<{ slug: string }> }
 ) {
   try {
     await connectDB()
+
+    // Await params in Next.js 15+
+    const { slug } = await params
 
     const session = await getServerSession(authOptions)
     let userId: string | null = null
@@ -23,7 +26,7 @@ export async function GET(
     }
 
     // Find session by slug and populate host
-    const sessionData = await Session.findOne({ slug: params.slug })
+    const sessionData = await Session.findOne({ slug })
       .populate('hostId', 'name email image')
       .lean()
 
