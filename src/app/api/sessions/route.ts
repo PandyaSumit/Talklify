@@ -15,10 +15,9 @@ export async function GET(request: Request) {
     const maxPrice = searchParams.get('maxPrice')
     const search = searchParams.get('search')
 
-    // Build query
+    // Build query - show all published sessions
     const query: any = {
       status: SessionStatus.PUBLISHED,
-      sessionDate: { $gte: new Date() }, // Only future sessions
     }
 
     if (category && category !== 'all') {

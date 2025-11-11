@@ -52,6 +52,7 @@ export async function GET(
       sessionDate: sessionData.sessionDate.toISOString(),
       duration: sessionData.duration,
       meetingPlatform: sessionData.meetingPlatform,
+      meetingLink: sessionData.meetingLink,
       category: sessionData.category,
       tags: sessionData.tags,
       difficultyLevel: sessionData.difficultyLevel,
