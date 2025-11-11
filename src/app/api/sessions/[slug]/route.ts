@@ -5,6 +5,7 @@ import Session from '@/models/Session'
 import Booking from '@/models/Booking'
 import User from '@/models/User'
 import { authOptions } from '@/lib/auth/auth-options'
+import { decryptMeetingLink } from '@/lib/encryption'
 
 export async function GET(
   request: Request,
@@ -44,6 +45,20 @@ export async function GET(
       isBooked = !!booking
     }
 
+    // Check if user is the host
+    const isHost = userId && sessionData.hostId._id.toString() === userId
+
+    // Decrypt meeting link only for authorized users (host or booked attendees)
+    let meetingLink: string | undefined = undefined
+    if ((isHost || isBooked) && sessionData.meetingLinkEncrypted) {
+      try {
+        meetingLink = decryptMeetingLink(sessionData.meetingLinkEncrypted)
+      } catch (error) {
+        console.error('Failed to decrypt meeting link:', error)
+        // Don't expose meeting link if decryption fails
+      }
+    }
+
     const transformedSession = {
       _id: sessionData._id.toString(),
       title: sessionData.title,
@@ -51,8 +66,9 @@ export async function GET(
       description: sessionData.description,
       sessionDate: sessionData.sessionDate.toISOString(),
       duration: sessionData.duration,
+      timezone: sessionData.timezone,
       meetingPlatform: sessionData.meetingPlatform,
-      meetingLink: sessionData.meetingLink,
+      meetingLink, // Only included if user is authorized
       category: sessionData.category,
       tags: sessionData.tags,
       difficultyLevel: sessionData.difficultyLevel,
