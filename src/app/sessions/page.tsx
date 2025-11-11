@@ -40,8 +40,8 @@ export default function SessionsPage() {
   const [isLoading, setIsLoading] = useState(true)
   const [showFilters, setShowFilters] = useState(false)
 
-  const categories = ['all', 'programming', 'design', 'business', 'marketing', 'data science', 'productivity']
-  const difficulties = ['all', 'BEGINNER', 'INTERMEDIATE', 'ADVANCED']
+  const categories = ['all', 'Tech', 'Design', 'Business', 'Marketing', 'Health', 'Career', 'Finance', 'Other']
+  const difficulties = ['all', 'Beginner', 'Intermediate', 'Advanced']
   const priceOptions = ['all', 'free', 'paid']
 
   useEffect(() => {
@@ -135,11 +135,11 @@ export default function SessionsPage() {
 
   const getDifficultyColor = (level: string) => {
     switch (level) {
-      case 'BEGINNER':
+      case 'Beginner':
         return 'success'
-      case 'INTERMEDIATE':
+      case 'Intermediate':
         return 'warning'
-      case 'ADVANCED':
+      case 'Advanced':
         return 'error'
       default:
         return 'default'
