@@ -1,199 +1,252 @@
-import Link from 'next/link'
-import { Button } from '@/components/ui/Button'
+'use client'
 
-export default function Home() {
+import { useState, useEffect } from 'react'
+import Link from 'next/link'
+import { useRouter } from 'next/navigation'
+import { Button } from '@/components/ui/Button'
+import { SessionCarousel } from '@/components/sessions/SessionCarousel'
+import { Card, CardContent } from '@/components/ui/Card'
+import { Search, TrendingUp, Award, Users, BookOpen, Briefcase, Heart, DollarSign, Palette } from 'lucide-react'
+
+interface HomepageData {
+  upcomingFree: any[]
+  popularPaid: any[]
+  featured: any[]
+  categoryCounts: { category: string; count: number }[]
+}
+
+const categoryIcons: { [key: string]: any } = {
+  Tech: BookOpen,
+  Design: Palette,
+  Business: Briefcase,
+  Marketing: TrendingUp,
+  Health: Heart,
+  Career: Award,
+  Finance: DollarSign,
+  Other: Users,
+}
+
+export default function HomePage() {
+  const router = useRouter()
+  const [homepageData, setHomepageData] = useState<HomepageData | null>(null)
+  const [isLoading, setIsLoading] = useState(true)
+  const [searchQuery, setSearchQuery] = useState('')
+
+  useEffect(() => {
+    fetchHomepageData()
+  }, [])
+
+  const fetchHomepageData = async () => {
+    try {
+      setIsLoading(true)
+      const response = await fetch('/api/sessions/homepage')
+      if (response.ok) {
+        const data = await response.json()
+        setHomepageData(data.data)
+      }
+    } catch (error) {
+      console.error('Failed to fetch homepage data:', error)
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault()
+    if (searchQuery.trim()) {
+      router.push(`/sessions/search?q=${encodeURIComponent(searchQuery)}`)
+    }
+  }
+
+  const handleBookmark = (sessionId: string) => {
+    // TODO: Implement bookmark functionality
+    console.log('Bookmark session:', sessionId)
+  }
+
+  const handleShare = (sessionId: string) => {
+    // TODO: Implement share functionality
+    console.log('Share session:', sessionId)
+  }
+
   return (
-    <div className="min-h-screen">
-      {/* Hero Section */}
+    <div className="min-h-screen bg-gray-50 dark:bg-slate-900">
+      {/* Hero Section with Search */}
       <section className="relative overflow-hidden bg-gradient-to-br from-blue-600 to-indigo-700 dark:from-blue-700 dark:to-indigo-900 py-20 sm:py-32">
         <div className="absolute inset-0 bg-grid-white/[0.05] bg-[length:20px_20px]" />
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center">
             <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-white mb-6">
-              The Marketplace for
+              Discover Expert-Led
               <br />
-              <span className="text-blue-200 dark:text-blue-300">Expert Sessions</span>
+              <span className="text-blue-200 dark:text-blue-300">Learning Sessions</span>
             </h1>
             <p className="text-xl text-blue-100 dark:text-blue-200 mb-8 max-w-2xl mx-auto">
-              Connect with coaches, consultants, and educators for free and paid workshops.
-              Share your expertise or learn from the best.
+              Join live workshops, masterclasses, and Q&A sessions with industry experts
             </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Link href="/signup">
-                <Button size="lg" className="bg-white text-blue-600 hover:bg-blue-50 w-full sm:w-auto">
-                  Get Started Free
+
+            {/* Search Bar */}
+            <form onSubmit={handleSearch} className="max-w-3xl mx-auto">
+              <div className="relative">
+                <input
+                  type="text"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  placeholder="Search for sessions, topics, or hosts..."
+                  className="w-full px-6 py-4 pr-32 rounded-full text-gray-900 dark:text-gray-100 bg-white dark:bg-slate-800 shadow-xl focus:outline-none focus:ring-4 focus:ring-blue-300 dark:focus:ring-blue-800"
+                />
+                <Button
+                  type="submit"
+                  size="lg"
+                  className="absolute right-2 top-1/2 -translate-y-1/2 rounded-full"
+                >
+                  <Search className="w-5 h-5 mr-2" />
+                  Search
                 </Button>
-              </Link>
-              <Link href="/sessions">
-                <Button size="lg" variant="outline" className="border-white text-white hover:bg-white/10 w-full sm:w-auto">
-                  Browse Sessions
-                </Button>
-              </Link>
+              </div>
+            </form>
+
+            {/* Quick Stats */}
+            <div className="mt-12 grid grid-cols-2 md:grid-cols-4 gap-6 max-w-4xl mx-auto">
+              <div className="text-center">
+                <div className="text-3xl font-bold text-white">1000+</div>
+                <div className="text-blue-200 dark:text-blue-300 text-sm mt-1">Live Sessions</div>
+              </div>
+              <div className="text-center">
+                <div className="text-3xl font-bold text-white">500+</div>
+                <div className="text-blue-200 dark:text-blue-300 text-sm mt-1">Expert Hosts</div>
+              </div>
+              <div className="text-center">
+                <div className="text-3xl font-bold text-white">50K+</div>
+                <div className="text-blue-200 dark:text-blue-300 text-sm mt-1">Attendees</div>
+              </div>
+              <div className="text-center">
+                <div className="text-3xl font-bold text-white">200+</div>
+                <div className="text-blue-200 dark:text-blue-300 text-sm mt-1">Free Sessions</div>
+              </div>
             </div>
           </div>
         </div>
       </section>
 
-      {/* Features Section */}
-      <section className="py-20 bg-white dark:bg-slate-900">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-16">
-            <h2 className="text-3xl font-bold text-gray-900 dark:text-gray-100 mb-4">
-              Why Choose Talklify?
-            </h2>
-            <p className="text-lg text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">
-              Everything you need to host or attend expert sessions in one place
-            </p>
+      {/* Main Content */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 space-y-16">
+        {isLoading ? (
+          <div className="flex items-center justify-center py-20">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600" />
           </div>
+        ) : (
+          <>
+            {/* Upcoming Free Sessions */}
+            {homepageData?.upcomingFree && homepageData.upcomingFree.length > 0 && (
+              <SessionCarousel
+                sessions={homepageData.upcomingFree}
+                title="Upcoming Free Sessions"
+                subtitle="Join these free sessions happening in the next 7 days"
+                onBookmark={handleBookmark}
+                onShare={handleShare}
+              />
+            )}
 
-          <div className="grid md:grid-cols-3 gap-8">
-            <div className="text-center p-6">
-              <div className="w-12 h-12 bg-blue-100 dark:bg-blue-900/30 rounded-lg flex items-center justify-center mx-auto mb-4">
-                <svg className="w-6 h-6 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-                </svg>
-              </div>
-              <h3 className="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-2">Easy Session Creation</h3>
-              <p className="text-gray-600 dark:text-gray-400">
-                Create and manage both free and paid sessions with just a few clicks
-              </p>
-            </div>
-
-            <div className="text-center p-6">
-              <div className="w-12 h-12 bg-blue-100 dark:bg-blue-900/30 rounded-lg flex items-center justify-center mx-auto mb-4">
-                <svg className="w-6 h-6 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
-                </svg>
-              </div>
-              <h3 className="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-2">Build Your Audience</h3>
-              <p className="text-gray-600 dark:text-gray-400">
-                Grow your following and connect with learners worldwide
-              </p>
-            </div>
-
-            <div className="text-center p-6">
-              <div className="w-12 h-12 bg-blue-100 dark:bg-blue-900/30 rounded-lg flex items-center justify-center mx-auto mb-4">
-                <svg className="w-6 h-6 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-              </div>
-              <h3 className="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-2">Automated Payments</h3>
-              <p className="text-gray-600 dark:text-gray-400">
-                Secure payment processing with automatic payouts to hosts
-              </p>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* How It Works */}
-      <section className="py-20 bg-gray-50 dark:bg-slate-800">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-16">
-            <h2 className="text-3xl font-bold text-gray-900 dark:text-gray-100 mb-4">
-              How It Works
-            </h2>
-            <p className="text-lg text-gray-600 dark:text-gray-400">
-              Get started in minutes
-            </p>
-          </div>
-
-          <div className="grid md:grid-cols-3 gap-8">
-            <div className="relative">
-              <div className="bg-white dark:bg-slate-900 rounded-lg p-6 shadow-sm">
-                <div className="w-10 h-10 bg-blue-600 dark:bg-blue-500 text-white rounded-full flex items-center justify-center font-bold mb-4">
-                  1
+            {/* Featured Sessions */}
+            {homepageData?.featured && homepageData.featured.length > 0 && (
+              <div className="relative">
+                <div className="absolute -top-2 -left-2 bg-yellow-400 text-yellow-900 text-xs font-bold px-3 py-1 rounded-full shadow-lg z-10">
+                  ⭐ FEATURED
                 </div>
-                <h3 className="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-2">Create Account</h3>
-                <p className="text-gray-600 dark:text-gray-400">
-                  Sign up in seconds and choose whether you want to host, attend, or both
-                </p>
+                <SessionCarousel
+                  sessions={homepageData.featured}
+                  title="Featured Sessions"
+                  subtitle="Promoted sessions from top hosts"
+                  onBookmark={handleBookmark}
+                  onShare={handleShare}
+                />
               </div>
-            </div>
+            )}
 
-            <div className="relative">
-              <div className="bg-white dark:bg-slate-900 rounded-lg p-6 shadow-sm">
-                <div className="w-10 h-10 bg-blue-600 dark:bg-blue-500 text-white rounded-full flex items-center justify-center font-bold mb-4">
-                  2
+            {/* Browse by Category */}
+            {homepageData?.categoryCounts && homepageData.categoryCounts.length > 0 && (
+              <div>
+                <div className="mb-6">
+                  <h2 className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-gray-100">
+                    Browse by Category
+                  </h2>
+                  <p className="text-gray-600 dark:text-gray-400 mt-1">
+                    Explore sessions across different topics
+                  </p>
                 </div>
-                <h3 className="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-2">Create or Browse</h3>
-                <p className="text-gray-600 dark:text-gray-400">
-                  Host your own sessions or discover expert-led workshops
-                </p>
-              </div>
-            </div>
 
-            <div className="relative">
-              <div className="bg-white dark:bg-slate-900 rounded-lg p-6 shadow-sm">
-                <div className="w-10 h-10 bg-blue-600 dark:bg-blue-500 text-white rounded-full flex items-center justify-center font-bold mb-4">
-                  3
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                  {homepageData.categoryCounts.map(({ category, count }) => {
+                    const Icon = categoryIcons[category] || Users
+                    return (
+                      <Link key={category} href={`/sessions/search?categories=${category}`}>
+                        <Card className="hover:shadow-lg transition-all duration-300 cursor-pointer border-2 hover:border-blue-500 dark:hover:border-blue-400">
+                          <CardContent className="p-6 text-center">
+                            <div className="w-12 h-12 bg-blue-100 dark:bg-blue-900/30 rounded-lg flex items-center justify-center mx-auto mb-3">
+                              <Icon className="w-6 h-6 text-blue-600 dark:text-blue-400" />
+                            </div>
+                            <h3 className="font-semibold text-gray-900 dark:text-gray-100 mb-1">
+                              {category}
+                            </h3>
+                            <p className="text-sm text-gray-500 dark:text-gray-400">
+                              {count} sessions
+                            </p>
+                          </CardContent>
+                        </Card>
+                      </Link>
+                    )
+                  })}
                 </div>
-                <h3 className="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-2">Connect & Learn</h3>
-                <p className="text-gray-600 dark:text-gray-400">
-                  Join sessions, learn from experts, and grow your skills
-                </p>
+
+                <div className="mt-8 text-center">
+                  <Link href="/sessions/search">
+                    <Button size="lg" variant="outline">
+                      View All Sessions
+                    </Button>
+                  </Link>
+                </div>
               </div>
-            </div>
-          </div>
-        </div>
-      </section>
+            )}
 
-      {/* CTA Section */}
-      <section className="bg-blue-600 dark:bg-blue-700 py-16">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h2 className="text-3xl font-bold text-white mb-4">
-            Ready to get started?
-          </h2>
-          <p className="text-xl text-blue-100 dark:text-blue-200 mb-8">
-            Join thousands of experts and learners on Talklify
-          </p>
-          <Link href="/signup">
-            <Button size="lg" className="bg-white text-blue-600 hover:bg-blue-50">
-              Sign Up Free
-            </Button>
-          </Link>
-        </div>
-      </section>
+            {/* Popular Paid Masterclasses */}
+            {homepageData?.popularPaid && homepageData.popularPaid.length > 0 && (
+              <SessionCarousel
+                sessions={homepageData.popularPaid}
+                title="Popular Paid Masterclasses"
+                subtitle="Most attended premium sessions"
+                onBookmark={handleBookmark}
+                onShare={handleShare}
+              />
+            )}
 
-      {/* Footer */}
-      <footer className="bg-gray-900 text-gray-300 py-12">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid md:grid-cols-4 gap-8">
-            <div>
-              <h3 className="text-white font-bold text-lg mb-4">Talklify</h3>
-              <p className="text-sm">
-                The marketplace for expert sessions and live workshops
+            {/* CTA Section */}
+            <div className="bg-gradient-to-br from-blue-600 to-indigo-700 dark:from-blue-700 dark:to-indigo-900 rounded-2xl p-12 text-center">
+              <h2 className="text-3xl font-bold text-white mb-4">
+                Ready to share your expertise?
+              </h2>
+              <p className="text-xl text-blue-100 dark:text-blue-200 mb-8 max-w-2xl mx-auto">
+                Join hundreds of hosts who are building their audience and earning through Talklify
               </p>
+              <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                <Link href="/host/sessions/create">
+                  <Button size="lg" className="bg-white text-blue-600 hover:bg-blue-50 w-full sm:w-auto">
+                    Create Your First Session
+                  </Button>
+                </Link>
+                <Link href="/sessions">
+                  <Button
+                    size="lg"
+                    variant="outline"
+                    className="border-white text-white hover:bg-white/10 w-full sm:w-auto"
+                  >
+                    Or Browse Sessions
+                  </Button>
+                </Link>
+              </div>
             </div>
-            <div>
-              <h4 className="text-white font-semibold mb-4">Product</h4>
-              <ul className="space-y-2 text-sm">
-                <li><Link href="/sessions" className="hover:text-white">Browse Sessions</Link></li>
-                <li><Link href="/pricing" className="hover:text-white">Pricing</Link></li>
-                <li><Link href="/features" className="hover:text-white">Features</Link></li>
-              </ul>
-            </div>
-            <div>
-              <h4 className="text-white font-semibold mb-4">Company</h4>
-              <ul className="space-y-2 text-sm">
-                <li><Link href="/about" className="hover:text-white">About</Link></li>
-                <li><Link href="/blog" className="hover:text-white">Blog</Link></li>
-                <li><Link href="/contact" className="hover:text-white">Contact</Link></li>
-              </ul>
-            </div>
-            <div>
-              <h4 className="text-white font-semibold mb-4">Legal</h4>
-              <ul className="space-y-2 text-sm">
-                <li><Link href="/privacy" className="hover:text-white">Privacy</Link></li>
-                <li><Link href="/terms" className="hover:text-white">Terms</Link></li>
-              </ul>
-            </div>
-          </div>
-          <div className="border-t border-gray-800 mt-8 pt-8 text-sm text-center">
-            <p>&copy; 2025 Talklify. All rights reserved.</p>
-          </div>
-        </div>
-      </footer>
+          </>
+        )}
+      </div>
     </div>
   )
 }
